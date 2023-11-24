@@ -1,0 +1,38 @@
+@model IEnumerable<BibliotecaMvc.Models.EmprestismoDeLivros>
+
+<h2>Lista de Empréstimos</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>IdTransacao</th>
+            <th>IdLivro</th>
+            <th>IdUsuario</th>
+            <th>DataEmprestimo</th>
+            <th>DataDevolucaoPrevista</th>
+            <th>DataDevolucaoRealizada</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var emprestimo in Model)
+            {
+                <tr>
+                    <td>@emprestimo.IdTransacao</td>
+                    <td>@emprestimo.IdLivro</td>
+                    <td>@emprestimo.IdUsuario</td>
+                    <td>@emprestimo.DataEmprestimo</td>
+                    <td>@emprestimo.DataDevolucaoPrevista</td>
+                    <td>@(emprestimo.DataDevolucaoRealizada.HasValue ? emprestimo.DataDevolucaoRealizada.Value.ToString() : "Não devolvido")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6">Nenhum empréstimo encontrado.</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,33 +1,194 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using BibliotecaMvc.Models;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System;
 
 namespace BibliotecaMvc.Controllers
 {
-    [Route("[controller]")]
     public class EmprestimoController : Controller
     {
-        private readonly ILogger<EmprestimoController> _logger;
+        private readonly string uriBase = "http://localhost:5280/api/Emprestimo/";
 
-        public EmprestimoController(ILogger<EmprestimoController> logger)
+        private async Task<EmprestismoDeLivros> ObterEmprestimoPorIdAsync(int? idTransacao)
         {
-            _logger = logger;
-            
+            if (idTransacao == null)
+            {
+                return null;
+            }
+
+            using (HttpClient httpClient = new HttpClient())
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(uriBase + $"obterEmprestimoPorId/{idTransacao}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var serialized = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<EmprestismoDeLivros>(serialized);
+                }
+                else
+                {
+                    TempData["MensagemErro"] = response.ReasonPhrase;
+                    return null;
+                }
+            }
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<ActionResult> Index()
+        {
+            try
+            {
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync(uriBase + "obterTodosOsEmprestimos") ;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var serialized = await response.Content.ReadAsStringAsync();
+                        var listaEmprestimos = JsonConvert.DeserializeObject<IEnumerable<EmprestismoDeLivros>>(serialized);
+
+                        return View(listaEmprestimos);
+                    }
+                    else
+                    {
+                        TempData["MensagemErro"] = response.ReasonPhrase;
+                        return View(); // Retorna a view sem dados em caso de erro.
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+                return View(); // Retorna a view sem dados em caso de exceção.
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult> Details(int? idTransacao)
+        {
+            var emprestimo = await ObterEmprestimoPorIdAsync(idTransacao);
+
+            if (emprestimo == null)
+            {
+                return NotFound();
+            }
+
+            return View(emprestimo);
+        }
+
+        [HttpGet]
+        public ActionResult Create()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public async Task<ActionResult> Create([Bind("IdLivro, IdUsuario")] EmprestismoDeLivros emprestimo)
         {
-            return View("Error!");
+            try
+            {
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    var content = new StringContent(JsonConvert.SerializeObject(emprestimo));
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    HttpResponseMessage response = await httpClient.PostAsync(uriBase + "realizarEmprestimo", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var serialized = await response.Content.ReadAsStringAsync();
+                        TempData["Mensagem"] = $"Empréstimo Id {serialized} realizado com sucesso!";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["MensagemErro"] = "Ocorreu um erro ao realizar o empréstimo.";
+                        return RedirectToAction("Create");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+                return RedirectToAction("Create");
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Edit(int? idTransacao)
+        {
+            var emprestimo = await ObterEmprestimoPorIdAsync(idTransacao);
+
+            if (emprestimo == null)
+            {
+                TempData["MensagemErro"] = "Empréstimo não encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            return View(emprestimo);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(EmprestismoDeLivros emprestimo)
+        {
+            try
+            {
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    var content = new StringContent(JsonConvert.SerializeObject(emprestimo));
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"realizarDevolucao/{emprestimo.IdTransacao}", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        TempData["Mensagem"] = $"Empréstimo Id {emprestimo.IdTransacao} atualizado com sucesso!";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["MensagemErro"] = response.ReasonPhrase;
+                        return RedirectToAction("Edit", new { idTransacao = emprestimo.IdTransacao });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Delete(int idTransacao)
+        {
+            try
+            {
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    HttpResponseMessage response = await httpClient.DeleteAsync(uriBase + $"realizarDevolucao/{idTransacao}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        TempData["Mensagem"] = $"Empréstimo Id {idTransacao} removido com sucesso!";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["MensagemErro"] = response.ReasonPhrase;
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MensagemErro"] = ex.Message;
+                return RedirectToAction("Index");
+            }
         }
     }
 }

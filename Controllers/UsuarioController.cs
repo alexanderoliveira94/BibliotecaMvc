@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BibliotecaMvc.Models;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace BibliotecaMvc.Controllers
 {
@@ -14,7 +15,7 @@ namespace BibliotecaMvc.Controllers
         {
             try
             {
-                
+
                 HttpClient httpClient = new HttpClient();
                 HttpResponseMessage response = await httpClient.GetAsync(uriBase + "obterTodosUsuarios");
 
@@ -135,21 +136,48 @@ namespace BibliotecaMvc.Controllers
         {
             try
             {
-                HttpClient httpClient = new HttpClient();
-                var content = new StringContent(JsonConvert.SerializeObject(usuario));
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"atualizarUsuario/{usuario.IdUsuario}", content);
-
-                if (response.IsSuccessStatusCode)
+                // Verifica se o novo nome do usuário já existe
+                using (HttpClient httpClientCheck = new HttpClient())
                 {
-                    TempData["Mensagem"] = $"Usuário {usuario.NomeUsuario}, Id {usuario.IdUsuario} atualizado com sucesso!";
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    TempData["MensagemErro"] = response.ReasonPhrase;
-                    return RedirectToAction("Edit", new { IdUsuario = usuario.IdUsuario });
+                    HttpResponseMessage responseCheck = await httpClientCheck.GetAsync(uriBase + $"verificarUsuarioExistente/{usuario.NomeUsuario}");
+
+                    if (responseCheck.IsSuccessStatusCode)
+                    {
+                        // Adiciona um erro ao ModelState
+                        ModelState.AddModelError("NomeUsuario", "O nome do usuário já está cadastrado para outro usuário.");
+                        return View(usuario);
+                    }
+                    else if (responseCheck.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // Continua com a atualização se o nome do usuário não existir
+                        using (HttpClient httpClient = new HttpClient())
+                        {
+                            var content = new StringContent(JsonConvert.SerializeObject(usuario));
+                            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                            HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"atualizarUsuario/{usuario.IdUsuario}", content);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                TempData["Mensagem"] = $"Usuário {usuario.NomeUsuario}, Id {usuario.IdUsuario} atualizado com sucesso!";
+
+                                // Adiciona uma mensagem de sucesso para ser exibida via JavaScript
+                                TempData["MensagemJS"] = "success";
+
+                                return RedirectToAction("Index");
+                            }
+                            else
+                            {
+                                TempData["MensagemErro"] = response.ReasonPhrase;
+                                return RedirectToAction("Edit", new { IdUsuario = usuario.IdUsuario });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        TempData["MensagemErro"] = "Erro ao verificar o nome do usuário.";
+                        return RedirectToAction("Edit", new { IdUsuario = usuario.IdUsuario });
+                    }
                 }
             }
             catch (Exception ex)
@@ -158,6 +186,9 @@ namespace BibliotecaMvc.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+
+
 
         [HttpPost]
         public async Task<ActionResult> Delete(int IdUsuario)

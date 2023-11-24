@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post" onsubmit="return validateForm()">
             <input type="hidden" asp-for="IdUsuario" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -20,6 +20,12 @@
             <div class="form-group">
                 <input type="submit" value="Salvar" class="btn btn-primary" />
             </div>
+
+            <!-- Exibir mensagem de erro -->
+            @if (!string.IsNullOrEmpty(TempData["MensagemErro"] as string))
+            {
+                <div class="text-danger">@TempData["MensagemErro"]</div>
+            }
         </form>
     </div>
 </div>
@@ -27,3 +33,40 @@
 <div>
     <a asp-action="Index">Voltar para Lista</a>
 </div>
+
+<script>
+    async function validateForm() {
+        // Limpar mensagens de erro
+        document.getElementById('NomeUsuarioError').innerText = '';
+
+        var nomeUsuario = document.getElementById('NomeUsuario').value.trim();
+
+        if (nomeUsuario === "") {
+            document.getElementById('NomeUsuarioError').innerText = 'O Nome do Usuário é obrigatório.';
+            return false;
+        }
+
+        try {
+            var response = await fetch(`/api/Usuarios/verificarNomeUsuario/${nomeUsuario}`);
+
+            if (!response.ok) {
+                // Algo deu errado ao verificar o nome de usuário
+                throw new Error('Erro ao verificar o nome de usuário. Tente novamente.');
+            }
+
+            var data = await response.json();
+
+            if (data && data.id !== @Model.IdUsuario) {
+                // Retorna true se o nome de usuário já existe e não é o mesmo que está sendo editado
+                document.getElementById('NomeUsuarioError').innerText = 'Este nome de usuário já está cadastrado. Escolha outro.';
+                return false; // Impede o envio do formulário
+            } else {
+                return true; // Permite o envio do formulário
+            }
+        } catch (error) {
+            // Exibir uma mensagem específica para o usuário
+            document.getElementById('NomeUsuarioError').innerText = 'Usuário já cadastrado. Escolha outro nome.';
+            return false;
+        }
+    }
+</script>

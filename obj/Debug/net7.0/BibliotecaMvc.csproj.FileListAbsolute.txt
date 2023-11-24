@@ -31,3 +31,5 @@ D:\BibliotecaMvc\obj\Debug\net7.0\ref\BibliotecaMvc.dll
 D:\BibliotecaMvc\bin\Debug\net7.0\Newtonsoft.Json.dll
 D:\BibliotecaMvc\obj\Debug\net7.0\BibliotecaMvc.csproj.AssemblyReference.cache
 D:\BibliotecaMvc\obj\Debug\net7.0\BibliotecaMvc.csproj.CopyComplete
+D:\BibliotecaMvc\bin\Debug\net7.0\System.Net.Http.Formatting.dll
+D:\BibliotecaMvc\bin\Debug\net7.0\Newtonsoft.Json.Bson.dll
