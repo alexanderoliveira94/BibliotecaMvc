@@ -1,0 +1,60 @@
+@model BibliotecaMvc.Models.Livro
+
+<h2>Adicionar Livro</h2>
+
+<form asp-action="Create" method="post" onsubmit="return validateForm()">
+    <div class="form-group">
+        <label>Título:</label>
+        <input id="Titulo" name="Titulo" class="form-control" />
+        <span id="TituloError" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Autor:</label>
+        <input id="Autor" name="Autor" class="form-control" />
+        <span id="AutorError" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Categoria:</label>
+        <input id="Categoria" name="Categoria" class="form-control" />
+        <span id="CategoriaError" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Adicionar</button>
+    
+    <!-- Exibir mensagem de erro -->
+    @if (!string.IsNullOrEmpty(TempData["MensagemErro"] as string))
+    {
+        <div class="text-danger">@TempData["MensagemErro"]</div>
+    }
+</form>
+
+<a asp-action="Index">Voltar para a Lista</a>
+
+<script>
+    function validateForm() {
+        // Limpar mensagens de erro
+        document.getElementById('TituloError').innerText = '';
+        document.getElementById('AutorError').innerText = '';
+        document.getElementById('CategoriaError').innerText = '';
+
+        var titulo = document.getElementById('Titulo').value;
+        var autor = document.getElementById('Autor').value;
+        var categoria = document.getElementById('Categoria').value;
+
+        if (titulo.trim() === '') {
+            document.getElementById('TituloError').innerText = 'O Título do livro é obrigatório.';
+            return false;
+        }
+
+        if (autor.trim() === '') {
+            document.getElementById('AutorError').innerText = 'O Autor do livro é obrigatório.';
+            return false;
+        }
+
+        if (categoria.trim() === '') {
+            document.getElementById('CategoriaError').innerText = 'A Categoria do livro é obrigatória.';
+            return false;
+        }
+
+        return true;
+    }
+</script>

@@ -1,0 +1,48 @@
+@model IEnumerable<BibliotecaMvc.Models.Livro>
+
+<h2>Lista de Livros</h2>
+
+
+<form asp-action="Index" method="get">
+    <label for="searchTerm">Buscar Livros:</label>
+    <input type="text" id="searchTerm" name="searchTerm" placeholder="Autor, título ou categoria" />
+    <button type="submit">Buscar</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Categoria</th>
+            <th>Disponivel</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var livro in Model)
+        {
+            <tr>
+                <td>@livro.IdLivro</td>
+                <td>@livro.Titulo</td>
+                <td>@livro.Autor</td>
+                <td>@livro.Categoria</td>
+                <td>@(livro.EstaDisponivel ? "Disponível" : "Emprestado")</td>
+
+
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { IdLivro = livro.IdLivro }) |
+                    @Html.ActionLink("Detalhes", "Details", new { IdLivro = livro.IdLivro }) |
+                    @using (Html.BeginForm("Delete", "Livro", new { IdLivro = livro.IdLivro }, FormMethod.Post))
+                    {
+                        <input type="submit" value="Deletar"
+                            onclick="return confirm('Deseja realmente deletar este livro?');" />
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create">Adicionar Livro</a>

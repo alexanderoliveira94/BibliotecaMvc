@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "V9uFM7f2tnGtg7pbXrOd9TQwHEG7NQ4GQRMGcGNeGvtgmEUMjaglPKO3pO7S7Zvt7rFWBgiYSgMC49m750BFfg==",
+  "success": true,
+  "projectFilePath": "D:\\BibliotecaMvc\\BibliotecaMvc.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Alex\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
