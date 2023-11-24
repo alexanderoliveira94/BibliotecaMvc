@@ -9,6 +9,7 @@
     <button type="submit">Buscar</button>
 </form>
 
+
 <table class="table">
     <thead>
         <tr>
@@ -31,8 +32,8 @@
 
 
                 <td>
-                    @Html.ActionLink("Editar", "Edit", new { IdLivro = livro.IdLivro }) |
-                    @Html.ActionLink("Detalhes", "Details", new { IdLivro = livro.IdLivro }) |
+                    <a href="@Url.Action("Edit", "Livro", new { IdLivro = livro.IdLivro })">Editar</a> |
+                    <a href="@Url.Action("Details", "Livro", new { IdLivro = livro.IdLivro })">Detalhes</a>|
                     @using (Html.BeginForm("Delete", "Livro", new { IdLivro = livro.IdLivro }, FormMethod.Post))
                     {
                         <input type="submit" value="Deletar"

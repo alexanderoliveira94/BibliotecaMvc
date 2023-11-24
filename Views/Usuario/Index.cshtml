@@ -1,0 +1,49 @@
+@model IEnumerable<BibliotecaMvc.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Lista de Usuários";
+}
+
+<h1>Lista de Usuários</h1>
+
+<p>
+    <a asp-action="Create">Adicionar Novo Usuário</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NomeUsuario)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdUsuario)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NomeUsuario)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-IdUsuario="@item.IdUsuario">Editar</a> |
+
+                    @using (Html.BeginForm("Delete", "Usuario", new { IdUsuario = item.IdUsuario }, FormMethod.Post))
+                    {
+                        <input type="submit" value="Deletar"
+                            onclick="return confirm('Deseja realmente deletar este Usuario?');" />
+                    }
+
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

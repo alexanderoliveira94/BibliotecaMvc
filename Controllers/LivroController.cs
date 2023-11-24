@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using BibliotecaMvc.Models;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace BibliotecaMvc.Controllers
 {
@@ -10,26 +11,46 @@ namespace BibliotecaMvc.Controllers
     {
         private readonly string uriBase = "http://localhost:5175/api/Livros/";
 
+        private async Task<Livro> ObterLivroPorIdAsync(int? IdLivro)
+        {
+            if (IdLivro == null)
+            {
+                return null;
+            }
+
+            using (HttpClient httpClient = new HttpClient())
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(uriBase + $"obterLivroPorid?IdLivro={IdLivro}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var serialized = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<Livro>(serialized);
+                }
+                else
+                {
+                    TempData["MensagemErro"] = response.ReasonPhrase;
+                    return null;
+                }
+            }
+        }
+
         [HttpGet]
         public async Task<ActionResult> IndexAsync(string searchTerm)
         {
             try
             {
                 HttpClient httpClient = new HttpClient();
-                HttpResponseMessage response = await httpClient.GetAsync(uriBase + "obterTodosOsLivros");
+                HttpResponseMessage response;
 
                 if (string.IsNullOrEmpty(searchTerm))
                 {
-                    // Buscar todos os livros se o termo de busca estiver vazio
                     response = await httpClient.GetAsync(uriBase + "obterTodosOsLivros");
                 }
                 else
                 {
-                    // Buscar livros com base no termo de busca
                     response = await httpClient.GetAsync(uriBase + $"buscarLivros?termoBusca={searchTerm}");
                 }
-
-
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -52,28 +73,16 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> DetailsAsync(int? IdLivro)
+        public async Task<ActionResult> Details(int? IdLivro)
         {
-            if (IdLivro == null)
+            var livro = await ObterLivroPorIdAsync(IdLivro);
+
+            if (livro == null)
             {
                 return NotFound();
             }
 
-            HttpClient httpClient = new HttpClient();
-            HttpResponseMessage response = await httpClient.GetAsync(uriBase + $"obterLivroPorid?id={IdLivro}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var serialized = await response.Content.ReadAsStringAsync();
-                var livro = JsonConvert.DeserializeObject<Livro>(serialized);
-
-                return View(livro);
-            }
-            else
-            {
-                TempData["MensagemErro"] = response.ReasonPhrase;
-                return RedirectToAction("Index");
-            }
+            return View(livro);
         }
 
         [HttpGet]
@@ -130,31 +139,22 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
-
         [HttpGet]
-        public async Task<ActionResult> EditAsync(int? IdLivro)
+        public async Task<ActionResult> Edit(int? IdLivro)
         {
-            
+            var livro = await ObterLivroPorIdAsync(IdLivro);
 
-            HttpClient httpClient = new HttpClient();
-            HttpResponseMessage response = await httpClient.GetAsync(uriBase + $"obterLivroPorid?id={IdLivro}");
-
-            if (response.IsSuccessStatusCode)
+            if (livro == null)
             {
-                var serialized = await response.Content.ReadAsStringAsync();
-                var livro = JsonConvert.DeserializeObject<Livro>(serialized);
-
-                return View(livro);
-            }
-            else
-            {
-                TempData["MensagemErro"] = response.ReasonPhrase;
+                TempData["MensagemErro"] = "Livro não encontrado.";
                 return RedirectToAction("Index");
             }
+
+            return View(livro);
         }
 
         [HttpPost]
-        public async Task<ActionResult> EditAsync(Livro livro)
+        public async Task<ActionResult> Edit(Livro livro)
         {
             try
             {
@@ -167,13 +167,11 @@ namespace BibliotecaMvc.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     TempData["Mensagem"] = $"Livro {livro.Titulo}, Id {livro.IdLivro} atualizado com sucesso!";
-                    // Corrija aqui de "id" para "IdLivro"
                     return RedirectToAction("Index");
                 }
                 else
                 {
                     TempData["MensagemErro"] = response.ReasonPhrase;
-                    // Corrija aqui de "id" para "IdLivro"
                     return RedirectToAction("Edit", new { IdLivro = livro.IdLivro });
                 }
             }
@@ -184,10 +182,8 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
-
-
         [HttpPost]
-        public async Task<ActionResult> DeleteAsync(int IdLivro)
+        public async Task<ActionResult> Delete(int IdLivro)
         {
             try
             {
@@ -213,8 +209,5 @@ namespace BibliotecaMvc.Controllers
                 return RedirectToAction("Index");
             }
         }
-
-
-
     }
 }
