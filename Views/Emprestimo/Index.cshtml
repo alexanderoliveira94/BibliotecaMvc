@@ -5,12 +5,12 @@
 <table class="table">
     <thead>
         <tr>
-            <th>IdTransacao</th>
-            <th>IdLivro</th>
-            <th>IdUsuario</th>
-            <th>DataEmprestimo</th>
-            <th>DataDevolucaoPrevista</th>
-            <th>DataDevolucaoRealizada</th>
+            <th>Id Transacao</th>
+            <th>Id Livro</th>
+            <th>Id Usuario</th>
+            <th>Data Emprestimo</th>
+            <th>Data Devolucao Prevista</th>
+            <th>Data Devolucao Realizada</th>
         </tr>
     </thead>
     <tbody>
@@ -25,14 +25,24 @@
                     <td>@emprestimo.DataEmprestimo</td>
                     <td>@emprestimo.DataDevolucaoPrevista</td>
                     <td>@(emprestimo.DataDevolucaoRealizada.HasValue ? emprestimo.DataDevolucaoRealizada.Value.ToString() : "Não devolvido")</td>
+                    <td>
+                        
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="6">Nenhum empréstimo encontrado.</td>
+                <td colspan="7">Nenhum empréstimo encontrado.</td>
             </tr>
         }
     </tbody>
 </table>
+
+<div>
+    <a asp-action="Create" class="btn btn-success">Novo Empréstimo</a>
+</div>
+<div>
+    <a asp-action="Edit" class="btn btn-primary">Nova Devolução</a>
+</div>

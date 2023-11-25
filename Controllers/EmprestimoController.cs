@@ -1,16 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using BibliotecaMvc.Models;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
-using System;
+
 
 namespace BibliotecaMvc.Controllers
 {
     public class EmprestimoController : Controller
     {
-        private readonly string uriBase = "http://localhost:5280/api/Emprestimo/";
+        private readonly string uriBase = "http://localhost:5175/api/Emprestimo/";
 
         private async Task<EmprestismoDeLivros> ObterEmprestimoPorIdAsync(int? idTransacao)
         {
@@ -43,7 +41,7 @@ namespace BibliotecaMvc.Controllers
             {
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    HttpResponseMessage response = await httpClient.GetAsync(uriBase + "obterTodosOsEmprestimos") ;
+                    HttpResponseMessage response = await httpClient.GetAsync(uriBase + "obterTodosOsEmprestimos");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -66,7 +64,6 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<ActionResult> Details(int? idTransacao)
         {
@@ -81,7 +78,7 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpGet]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
             return View();
         }
@@ -118,6 +115,8 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
+
+
         [HttpGet]
         public async Task<ActionResult> Edit(int? idTransacao)
         {
@@ -133,7 +132,7 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Edit(EmprestismoDeLivros emprestimo)
+        public async Task<ActionResult> Edit([Bind("IdTransacao, IdLivro, IdUsuario, DataEmprestimo, DataDevolucaoPrevista, DataDevolucaoRealizada")] EmprestismoDeLivros emprestimo)
         {
             try
             {
@@ -146,7 +145,7 @@ namespace BibliotecaMvc.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Mensagem"] = $"Empréstimo Id {emprestimo.IdTransacao} atualizado com sucesso!";
+                        TempData["Mensagem"] = $"Devolução do Empréstimo Id {emprestimo.IdTransacao} realizada com sucesso!";
                         return RedirectToAction("Index");
                     }
                     else

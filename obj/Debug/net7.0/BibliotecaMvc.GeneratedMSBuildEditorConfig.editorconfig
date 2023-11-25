@@ -16,16 +16,16 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\BibliotecaMvc
 build_property._RazorSourceGeneratorDebug = 
 
+[D:/BibliotecaMvc/Views/Emprestimo/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzdGltb1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/BibliotecaMvc/Views/Emprestimo/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzdGltb1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/BibliotecaMvc/Views/Emprestimo/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzdGltb1xJbmRleC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/BibliotecaMvc/Views/Emprestimo/RealizarDevolucao.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzdGltb1xSZWFsaXphckRldm9sdWNhby5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/BibliotecaMvc/Views/Emprestimo/RealizarEmprestimo.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wcmVzdGltb1xSZWFsaXphckVtcHJlc3RpbW8uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/BibliotecaMvc/Views/Home/Index.cshtml]
