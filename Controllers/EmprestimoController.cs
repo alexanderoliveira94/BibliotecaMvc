@@ -65,9 +65,9 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Details(int? idTransacao)
+        public async Task<ActionResult> Details(int? IdTransacao)
         {
-            var emprestimo = await ObterEmprestimoPorIdAsync(idTransacao);
+            var emprestimo = await ObterEmprestimoPorIdAsync(IdTransacao);
 
             if (emprestimo == null)
             {
@@ -84,12 +84,19 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([Bind("IdLivro, IdUsuario")] EmprestismoDeLivros emprestimo)
+        public async Task<ActionResult> Create(int IdLivro, int IdUsuario)
         {
             try
             {
                 using (HttpClient httpClient = new HttpClient())
                 {
+                    var emprestimo = new EmprestismoDeLivros
+                    {
+                        IdLivro = IdLivro,
+                        IdUsuario = IdUsuario
+                        // Você pode definir as outras propriedades, se necessário
+                    };
+
                     var content = new StringContent(JsonConvert.SerializeObject(emprestimo));
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
@@ -115,12 +122,10 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
-
-
         [HttpGet]
-        public async Task<ActionResult> Edit(int? idTransacao)
+        public async Task<ActionResult> Edit(int? IdTransacao)
         {
-            var emprestimo = await ObterEmprestimoPorIdAsync(idTransacao);
+            var emprestimo = await ObterEmprestimoPorIdAsync(IdTransacao);
 
             if (emprestimo == null)
             {
@@ -132,26 +137,27 @@ namespace BibliotecaMvc.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Edit([Bind("IdTransacao, IdLivro, IdUsuario, DataEmprestimo, DataDevolucaoPrevista, DataDevolucaoRealizada")] EmprestismoDeLivros emprestimo)
+        public async Task<ActionResult> Edit(int IdLivro, int IdUsuario)
         {
             try
             {
                 using (HttpClient httpClient = new HttpClient())
                 {
+                    var emprestimo = new { IdLivro = IdLivro, IdUsuario = IdUsuario };
                     var content = new StringContent(JsonConvert.SerializeObject(emprestimo));
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                    HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"realizarDevolucao/{emprestimo.IdTransacao}", content);
+                    HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"realizarDevolucao", content);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Mensagem"] = $"Devolução do Empréstimo Id {emprestimo.IdTransacao} realizada com sucesso!";
+                        TempData["Mensagem"] = $"Devolução do Empréstimo realizada com sucesso!";
                         return RedirectToAction("Index");
                     }
                     else
                     {
                         TempData["MensagemErro"] = response.ReasonPhrase;
-                        return RedirectToAction("Edit", new { idTransacao = emprestimo.IdTransacao });
+                        return RedirectToAction("Index"); // Ou redirecione para a página desejada em caso de erro.
                     }
                 }
             }
@@ -162,18 +168,19 @@ namespace BibliotecaMvc.Controllers
             }
         }
 
+
         [HttpPost]
-        public async Task<ActionResult> Delete(int idTransacao)
+        public async Task<ActionResult> Delete(int IdTransacao)
         {
             try
             {
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    HttpResponseMessage response = await httpClient.DeleteAsync(uriBase + $"realizarDevolucao/{idTransacao}");
+                    HttpResponseMessage response = await httpClient.DeleteAsync(uriBase + $"realizarDevolucao/{IdTransacao}");
 
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Mensagem"] = $"Empréstimo Id {idTransacao} removido com sucesso!";
+                        TempData["Mensagem"] = $"Empréstimo Id {IdTransacao} removido com sucesso!";
                         return RedirectToAction("Index");
                     }
                     else
