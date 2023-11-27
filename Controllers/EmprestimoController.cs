@@ -1,10 +1,6 @@
 using BibliotecaMvc.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace BibliotecaMvc.Controllers
 {
@@ -55,14 +51,14 @@ namespace BibliotecaMvc.Controllers
                     else
                     {
                         TempData["MensagemErro"] = response.ReasonPhrase;
-                        return View(); // Retorna a view sem dados em caso de erro.
+                        return View();
                     }
                 }
             }
             catch (Exception ex)
             {
                 TempData["MensagemErro"] = ex.Message;
-                return View(); // Retorna a view sem dados em caso de exceção.
+                return View();
             }
         }
 
@@ -90,32 +86,21 @@ namespace BibliotecaMvc.Controllers
         {
             try
             {
-                // Verificar se os IDs são válidos
+
                 if (IdLivro <= 0 || IdUsuario <= 0)
                 {
                     TempData["MensagemErro"] = "IDs de Livro e Usuário devem ser maiores que zero.";
                     return RedirectToAction("Create");
                 }
 
-                // Log de informações
-                Console.WriteLine($"Recebendo solicitação para realizar empréstimo - ID Livro: {IdLivro}, ID Usuário: {IdUsuario}");
-
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    // Criar um objeto anônimo com os IDs
-                    var emprestimo = new { IdLivro = IdLivro, IdUsuario = IdUsuario };
-
-                    // Log de informações
-                    Console.WriteLine($"Enviando solicitação para API - ID Livro: {emprestimo.IdLivro}, ID Usuário: {emprestimo.IdUsuario}");
-
-                    // Serializar o objeto em JSON
-                    var content = new StringContent(JsonConvert.SerializeObject(emprestimo));
-
-                    // Definir o cabeçalho de tipo de conteúdo
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    // Construir a URL com os parâmetros como query string
+                    var apiUrl =
+                        $"{uriBase}realizarEmprestimo?IdLivro={IdLivro}&IdUsuario={IdUsuario}";
 
                     // Enviar a solicitação POST para a API
-                    HttpResponseMessage response = await httpClient.PostAsync(uriBase + "realizarEmprestimo", content);
+                    HttpResponseMessage response = await httpClient.PostAsync(apiUrl, null);
 
                     // Verificar se a solicitação foi bem-sucedida
                     if (response.IsSuccessStatusCode)
@@ -126,75 +111,55 @@ namespace BibliotecaMvc.Controllers
                     }
                     else
                     {
-                        TempData["MensagemErro"] = $"Erro ao realizar o empréstimo. Resposta da API: {response.ReasonPhrase}";
+                        TempData["MensagemErro"] =
+                            $"Erro ao realizar o empréstimo. Resposta da API: {response.ReasonPhrase}";
                         return RedirectToAction("Create");
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Log de erro
-                Console.WriteLine($"Erro ao realizar o empréstimo: {ex.Message}");
+
                 TempData["MensagemErro"] = ex.Message;
                 return RedirectToAction("Create");
             }
         }
 
-
-        [HttpGet]
-        public async Task<ActionResult> Edit(int? IdTransacao)
-        {
-            var emprestimo = await ObterEmprestimoPorIdAsync(IdTransacao);
-
-            if (emprestimo == null)
-            {
-                TempData["MensagemErro"] = "Empréstimo não encontrado.";
-                return RedirectToAction("Index");
-            }
-
-            return View(emprestimo);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Devolver(int IdLivro, int IdUsuario)
+        public async Task<ActionResult> RealizarDevolucao(int IdTransacao)
         {
             try
             {
-                // Verificar se os IDs são válidos
-                if (IdLivro <= 0 || IdUsuario <= 0)
-                {
-                    TempData["MensagemErro"] = "IDs de Livro e Usuário devem ser maiores que zero.";
-                    return RedirectToAction("Index");
-                }
-
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    var devolucao = new { IdLivro = IdLivro, IdUsuario = IdUsuario };
-                    var content = new StringContent(JsonConvert.SerializeObject(devolucao));
-                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    // Construir a URL com os parâmetros como query string
+                    var apiUrl = $"{uriBase}realizarDevolucao/{IdTransacao}";
 
-                    HttpResponseMessage response = await httpClient.PutAsync(uriBase + $"realizarDevolucao", content);
+                    // Faz a chamada ao método da API usando o HttpClient
+                    HttpResponseMessage response = await httpClient.PutAsync(apiUrl, null);
 
+                    // Verifica se a chamada foi bem-sucedida (status code 204 - NoContent)
                     if (response.IsSuccessStatusCode)
                     {
-                        TempData["Mensagem"] = $"Devolução do Empréstimo realizada com sucesso!";
-                        return RedirectToAction("Index");
+                        // Devolução bem-sucedida, redireciona ou retorna uma mensagem de sucesso
+                        TempData["SucessoDevolucao"] = "Devolução realizada com sucesso.";
                     }
                     else
                     {
-                        TempData["MensagemErro"] = response.ReasonPhrase;
-                        return RedirectToAction("Index"); // Ou redirecione para a página desejada em caso de erro.
+                        // Devolução não foi bem-sucedida, define uma mensagem de erro
+                        TempData["ErroDevolucao"] = "Erro ao realizar a devolução.";
                     }
                 }
+
+                return RedirectToAction("Index"); // Redireciona para a página inicial, ajuste conforme necessário
             }
             catch (Exception ex)
             {
-                // Log de erro
-                Console.WriteLine($"Erro ao realizar a devolução: {ex.Message}");
-                TempData["MensagemErro"] = ex.Message;
-                return RedirectToAction("Index");
+                // Trate exceções aqui, redirecione para uma página de erro, ou faça o que for apropriado para sua aplicação
+                TempData["ErroDevolucao"] = "Erro ao realizar a devolução.";
+                return RedirectToAction("Index", "Home"); // Redireciona para a página inicial, ajuste conforme necessário
             }
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Delete(int IdTransacao)

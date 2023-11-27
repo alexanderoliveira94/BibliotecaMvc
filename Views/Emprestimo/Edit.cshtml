@@ -1,22 +1,12 @@
 @model BibliotecaMvc.Models.EmprestismoDeLivros
 
-<h2>Devolução de Livro</h2>
+<h2>Devolução de Livros</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="IdTransacao" />
+<form asp-action="Edit" method="put">
     <div class="form-group">
-        <label asp-for="IdTransacao">ID da Transação:</label>
-        <input asp-for="IdTransacao" class="form-control" disabled />
+        <label asp-for="IdTransacao">Cod. da Transação :</label>
+        <input asp-for="IdTransacao" class="form-control" required />
     </div>
-    <div class="form-group">
-        <label asp-for="IdLivro">ID do Livro:</label>
-        <input asp-for="IdLivro" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="IdUsuario">ID do Usuário:</label>
-        <input asp-for="IdUsuario" class="form-control" />
-    </div>
-    <!-- Adiciona um input hidden para IdTransacao se necessário -->
-    <input type="hidden" asp-for="IdTransacao" />
-    <button type="submit" class="btn btn-primary">Realizar Devolução</button>
+    
+    <button type="submit" class="btn btn-success">Realizar Empréstimo</button>
 </form>

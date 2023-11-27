@@ -5,12 +5,13 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Id Transacao</th>
-            <th>Id Livro</th>
-            <th>Id Usuario</th>
-            <th>Data Emprestimo</th>
-            <th>Data Devolucao Prevista</th>
-            <th>Data Devolucao Realizada</th>
+            <th>Cod. da Transacao</th>
+            <th>Cod. do Livro</th>
+            <th>Cod do Usuario</th>
+            <th>Data Empréstimo</th>
+            <th>Data  de Devolução Prevista</th>
+            <th>Data da Devolução Realizada</th>
+            <th>Ações</th> 
         </tr>
     </thead>
     <tbody>
@@ -27,6 +28,10 @@
                     <td>@(emprestimo.DataDevolucaoRealizada.HasValue ? emprestimo.DataDevolucaoRealizada.Value.ToString() : "Não devolvido")</td>
                     <td>
                         
+                        @if (!emprestimo.DataDevolucaoRealizada.HasValue)
+                        {
+                            <a asp-action="RealizarDevolucao" asp-route-IdTransacao="@emprestimo.IdTransacao">Realizar Devolução</a>
+                        }
                     </td>
                 </tr>
             }
@@ -42,7 +47,4 @@
 
 <div>
     <a asp-action="Create" class="btn btn-success">Novo Empréstimo</a>
-</div>
-<div>
-    <a asp-action="Edit" class="btn btn-primary">Nova Devolução</a>
 </div>
